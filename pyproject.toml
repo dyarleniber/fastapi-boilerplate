@@ -29,6 +29,7 @@ testpaths = [
 profile = "black"
 
 [tool.taskipy.tasks]
+dev = "uvicorn fastapi_boilerplate.main:app --reload"
 lint = "black . && isort ."
 lint_check = "black --check --diff . && isort --check --diff ."
 pre_test = "task lint_check"
