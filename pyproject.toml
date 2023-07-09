@@ -16,6 +16,7 @@ pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 black = "^23.3.0"
 taskipy = "^1.11.0"
+isort = "^5.12.0"
 
 [tool.pytest.ini_options]
 pythonpath = "."
@@ -23,6 +24,15 @@ minversion = "6.0"
 testpaths = [
     "tests"
 ]
+
+[tool.isort]
+profile = "black"
+
+[tool.taskipy.tasks]
+lint = "black . && isort ."
+lint_check = "black --check --diff . && isort --check --diff ."
+pre_test = "task lint_check"
+test = "pytest -s -x --cov=fastapi_boilerplate -vv"
 
 [build-system]
 requires = ["poetry-core"]
