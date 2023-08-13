@@ -1,27 +1,39 @@
-from typing import Union
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from httpx import AsyncClient
 
-app = FastAPI()
+from .config import config
+from .logger import Logger
+from .services.fetch_nutritionix_nutrients import FetchNutritionixNutrients
+from .types import NutritionixParams
+
+http_client = AsyncClient()
+logger = Logger(config)
+fetch_nutritionix_nutrients = FetchNutritionixNutrients(config, logger, http_client)
 
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    # shutdown
+    await http_client.aclose()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "World"}
+    return {"message": "OK"}
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+@app.get("/nutrients/{query}")
+async def read_nutrients(query: str):
+    try:
+        params = NutritionixParams(query=query)
+        nutrients = await fetch_nutritionix_nutrients.execute(params=params)
+        return nutrients
+    except Exception as e:
+        logger.error(f"Failed to get nutrients: {str(e)}")
+        raise HTTPException(status_code=500)
