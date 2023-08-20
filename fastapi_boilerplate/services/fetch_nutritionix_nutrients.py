@@ -58,7 +58,7 @@ class FetchNutritionixNutrients:
             )
             response.raise_for_status()
             response_data = response.json()
-            nutritionix_response = NutritionixResponse.model_validate(response_data)
+            nutritionix_response = NutritionixResponse(**response_data)
             nutrients: List[Nutrients] = []
             for nutritionix_nutrients in nutritionix_response.foods:
                 nutrients.append(

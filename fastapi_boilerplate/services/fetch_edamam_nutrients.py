@@ -91,7 +91,7 @@ class FetchEdamamNutrients:
             )
             response.raise_for_status()
             response_data = response.json()
-            edamam_response = EdamamResponse.model_validate(response_data)
+            edamam_response = EdamamResponse(**response_data)
             nutrients: List[Nutrients] = []
             for edamam_ingredient in edamam_response.ingredients:
                 for edamam_parsed_ingredient in edamam_ingredient.parsed:

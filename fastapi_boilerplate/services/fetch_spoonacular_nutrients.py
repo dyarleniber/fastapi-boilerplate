@@ -91,9 +91,7 @@ class FetchSpoonacularNutrients:
             response_data = response.json()
             nutrients: List[Nutrients] = []
             for response_item in response_data:
-                spoonacular_ingredient = SpoonacularIngredient.model_validate(
-                    response_item
-                )
+                spoonacular_ingredient = SpoonacularIngredient(**response_item)
                 spoonacular_nutrients = spoonacular_ingredient.nutrition.nutrients
                 spoonacular_weight_per_serving = (
                     spoonacular_ingredient.nutrition.weightPerServing
