@@ -1,10 +1,9 @@
-from dataclasses import asdict
 from typing import List
 
 from httpx import AsyncClient
 from pydantic import BaseModel
 
-from ..types import Config, Logger, Nutrients, NutritionixParams
+from ..types import Config, Language, Logger, Nutrients, NutrientSource
 from ..utils.nutrient_to_int import nutrient_to_int
 
 
@@ -35,7 +34,9 @@ class FetchNutritionixNutrients:
         self.logger = logger
         self.http_client = http_client
 
-    async def execute(self, *, params: NutritionixParams) -> List[Nutrients] | None:
+    async def execute(
+        self, *, query: str, language: Language = Language.EN_US
+    ) -> List[Nutrients] | None:
         try:
             url = f"{self.config.nutritionix.base_url}/v2/natural/nutrients"
             headers = {
@@ -44,8 +45,16 @@ class FetchNutritionixNutrients:
                 "x-app-key": self.config.nutritionix.app_key,
                 "x-remote-user-id": "0",
             }
+            body = {
+                "query": query.replace(",", " , "),
+                "locale": language,
+                "num_servings": 1,
+                "line_delimited": False,
+                "use_raw_foods": False,
+                "use_branded_foods": False,
+            }
             response = await self.http_client.post(
-                url, headers=headers, json=asdict(params), timeout=5
+                url, headers=headers, json=body, timeout=5
             )
             response.raise_for_status()
             response_data = response.json()
@@ -89,6 +98,7 @@ class FetchNutritionixNutrients:
                             nutritionix_nutrients.nf_cholesterol
                         ),
                         sodium_mg=nutrient_to_int(nutritionix_nutrients.nf_sodium),
+                        source=NutrientSource.NUTRITIONIX,
                     )
                 )
             return nutrients

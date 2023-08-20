@@ -11,7 +11,7 @@ from fastapi_boilerplate.types import (
     Language,
     Logger,
     Nutrients,
-    NutritionixParams,
+    NutrientSource,
 )
 
 
@@ -73,8 +73,7 @@ def fetch_nutritionix_nutrients(config, logger, http_client):
 
 @pytest.mark.anyio
 async def test_execute(logger, http_client, fetch_nutritionix_nutrients):
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result == [
         Nutrients(
             name="food_1",
@@ -90,6 +89,7 @@ async def test_execute(logger, http_client, fetch_nutritionix_nutrients):
             dietary_fiber_grams=5500,
             sugars_grams=7,
             cholesterol_mg=7,
+            source=NutrientSource.NUTRITIONIX,
         ),
         Nutrients(
             name="food_2",
@@ -97,6 +97,7 @@ async def test_execute(logger, http_client, fetch_nutritionix_nutrients):
             quantity=1,
             unit="food_2_unit",
             calories_kcal=20000,
+            source=NutrientSource.NUTRITIONIX,
         ),
     ]
     logger.error.assert_not_called()
@@ -122,16 +123,10 @@ async def test_execute(logger, http_client, fetch_nutritionix_nutrients):
 
 
 @pytest.mark.anyio
-async def test_execute_with_custom_params(http_client, fetch_nutritionix_nutrients):
-    params = NutritionixParams(
-        query="test_query_with_custom_params",
-        num_servings=2,
-        line_delimited=True,
-        use_raw_foods=True,
-        use_branded_foods=True,
-        locale=Language.PT_BR,
+async def test_execute_with_custom_language(http_client, fetch_nutritionix_nutrients):
+    result = await fetch_nutritionix_nutrients.execute(
+        query="test_query", language=Language.PT_BR
     )
-    result = await fetch_nutritionix_nutrients.execute(params=params)
     assert result is not None
     http_client.post.assert_called_once_with(
         "https://api.nutritionix.com/v2/natural/nutrients",
@@ -142,11 +137,11 @@ async def test_execute_with_custom_params(http_client, fetch_nutritionix_nutrien
             "x-remote-user-id": "0",
         },
         json={
-            "query": "test_query_with_custom_params",
-            "num_servings": 2,
-            "line_delimited": True,
-            "use_raw_foods": True,
-            "use_branded_foods": True,
+            "query": "test_query",
+            "num_servings": 1,
+            "line_delimited": False,
+            "use_raw_foods": False,
+            "use_branded_foods": False,
             "locale": "pt_BR",
         },
         timeout=5,
@@ -170,8 +165,7 @@ async def test_execute_with_empty_food_name_response(
         ]
     }
     http_client.post.return_value = http_client_response
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result is None
     logger.error.assert_called_once()
 
@@ -193,8 +187,7 @@ async def test_execute_with_empty_quantity_response(
         ]
     }
     http_client.post.return_value = http_client_response
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result is None
     logger.error.assert_called_once()
 
@@ -216,8 +209,7 @@ async def test_execute_with_empty_unit_response(
         ]
     }
     http_client.post.return_value = http_client_response
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result is None
     logger.error.assert_called_once()
 
@@ -239,8 +231,7 @@ async def test_execute_with_empty_calories_response(
         ]
     }
     http_client.post.return_value = http_client_response
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result is None
     logger.error.assert_called_once()
 
@@ -248,8 +239,7 @@ async def test_execute_with_empty_calories_response(
 @pytest.mark.anyio
 async def test_execute_with_exception(logger, http_client, fetch_nutritionix_nutrients):
     http_client.post.side_effect = Exception("test_error")
-    params = NutritionixParams(query="test_query")
-    result = await fetch_nutritionix_nutrients.execute(params=params)
+    result = await fetch_nutritionix_nutrients.execute(query="test_query")
     assert result is None
     logger.error.assert_called_once_with(
         "Failed to fetch nutritionix nutrients: test_error"

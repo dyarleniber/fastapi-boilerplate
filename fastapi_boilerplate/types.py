@@ -17,9 +17,24 @@ class NutritionixConfig:
 
 
 @dataclass(kw_only=True, slots=True)
+class SpoonacularConfig:
+    base_url: str
+    api_key: str
+
+
+@dataclass(kw_only=True, slots=True)
+class EdamamConfig:
+    base_url: str
+    app_id: str
+    app_key: str
+
+
+@dataclass(kw_only=True, slots=True)
 class Config:
     log_level: int
     nutritionix: NutritionixConfig
+    spoonacular: SpoonacularConfig
+    edamam: EdamamConfig
 
 
 class Logger(Protocol):
@@ -39,6 +54,12 @@ class Logger(Protocol):
         ...
 
 
+class NutrientSource(str, Enum):
+    NUTRITIONIX = "nutritionix"
+    SPOONACULAR = "spoonacular"
+    EDAMAM = "edamam"
+
+
 @dataclass(kw_only=True, slots=True)
 class Nutrients:
     name: str
@@ -56,18 +77,21 @@ class Nutrients:
     sugars_grams: int | None = None
     cholesterol_mg: int | None = None
     sodium_mg: int | None = None
-
-
-@dataclass(kw_only=True, slots=True)
-class NutritionixParams:
-    query: str
-    num_servings: int = 1
-    line_delimited: bool = False
-    use_raw_foods: bool = False
-    use_branded_foods: bool = False
-    locale: Language = Language.EN_US
+    source: NutrientSource
 
 
 class FetchNutritionixNutrients(Protocol):
-    def execute(self, *, params: NutritionixParams) -> List[Nutrients] | None:
+    def execute(
+        self, *, query: str, language: Language | None
+    ) -> List[Nutrients] | None:
+        ...
+
+
+class FetchSpoonacularNutrients(Protocol):
+    def execute(self, *, query: str) -> List[Nutrients] | None:
+        ...
+
+
+class FetchEdamamNutrients(Protocol):
+    def execute(self, *, query: str) -> List[Nutrients] | None:
         ...
