@@ -9,6 +9,9 @@ class Language(str, Enum):
     IT_IT = "it_IT"
 
 
+# Config
+
+
 @dataclass(kw_only=True, slots=True)
 class NutritionixConfig:
     base_url: str
@@ -37,6 +40,9 @@ class Config:
     edamam: EdamamConfig
 
 
+# Logger
+
+
 class Logger(Protocol):
     def debug(self, message: str) -> None:
         ...
@@ -52,6 +58,9 @@ class Logger(Protocol):
 
     def critical(self, message: str) -> None:
         ...
+
+
+# Services
 
 
 class NutrientSource(str, Enum):
