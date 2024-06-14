@@ -39,4 +39,3 @@ class GetNutrients:
         except Exception as e:
             self.logger.error(f"Failed to get nutrients: {str(e)}")
             raise HTTPException(status_code=500)
-        raise HTTPException(status_code=404)

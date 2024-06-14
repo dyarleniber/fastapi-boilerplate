@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Protocol
+from pymongo.database import Database
 
 
 class Language(str, Enum):
@@ -9,7 +10,17 @@ class Language(str, Enum):
     IT_IT = "it_IT"
 
 
+class Collection(str, Enum):
+    FOODS = "foods"
+
+
 # Config
+
+
+@dataclass(kw_only=True, slots=True)
+class DatabaseConfig:
+    url: str
+    name: str
 
 
 @dataclass(kw_only=True, slots=True)
@@ -35,6 +46,7 @@ class EdamamConfig:
 @dataclass(kw_only=True, slots=True)
 class Config:
     log_level: int
+    db: DatabaseConfig
     nutritionix: NutritionixConfig
     spoonacular: SpoonacularConfig
     edamam: EdamamConfig
@@ -57,6 +69,20 @@ class Logger(Protocol):
         ...
 
     def critical(self, message: str) -> None:
+        ...
+
+
+# Database
+
+
+class Db(Protocol):
+    def connect(self) -> None:
+        ...
+
+    def disconnect(self) -> None:
+        ...
+
+    def get_collection(self, collection: Collection) -> Database:
         ...
 
 
@@ -103,4 +129,32 @@ class FetchSpoonacularNutrients(Protocol):
 
 class FetchEdamamNutrients(Protocol):
     def execute(self, *, query: str) -> List[Nutrients] | None:
+        ...
+
+
+# Repositories
+
+
+class InsertFood(Protocol):
+    def execute(self) -> None:
+        ...
+
+
+class FindFoodById(Protocol):
+    def execute(self) -> None:
+        ...
+
+
+class FindFoods(Protocol):
+    def execute(self) -> None:
+        ...
+
+
+class UpdateFood(Protocol):
+    def execute(self) -> None:
+        ...
+
+
+class RemoveFood(Protocol):
+    def execute(self) -> None:
         ...

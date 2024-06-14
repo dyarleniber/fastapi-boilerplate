@@ -3,13 +3,24 @@ import os
 
 from dotenv import load_dotenv
 
-from .types import Config, EdamamConfig, NutritionixConfig, SpoonacularConfig
+from .types import (
+    Config,
+    DatabaseConfig,
+    EdamamConfig,
+    NutritionixConfig,
+    SpoonacularConfig,
+)
+
 
 load_dotenv()
 
 
 config = Config(
     log_level=logging.WARNING,
+    db=DatabaseConfig(
+        url=f"mongodb+srv://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_NAME')}.5j7qvjf.mongodb.net/?retryWrites=true&w=majority",
+        name=os.environ.get("DB_NAME") or "",
+    ),
     nutritionix=NutritionixConfig(
         base_url=os.environ.get("NUTRITIONIX_BASE_URL") or "",
         app_id=os.environ.get("NUTRITIONIX_APP_ID") or "",

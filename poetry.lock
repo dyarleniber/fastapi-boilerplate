@@ -366,30 +366,6 @@ plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
-name = "motor"
-version = "3.3.0"
-description = "Non-blocking MongoDB driver for Tornado or asyncio"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "motor-3.3.0-py3-none-any.whl", hash = "sha256:32bb0680f5ac3e245dcc98d41d009f3be5d45c1e4a1b2d17951d9f63c8f41ea0"},
-    {file = "motor-3.3.0.tar.gz", hash = "sha256:f18b90089acf914e21485d002c116f27a2215c85174b3bd3e2221d633e8cf7ab"},
-]
-
-[package.dependencies]
-pymongo = ">=4.5,<5"
-
-[package.extras]
-aws = ["pymongo[aws] (>=4.5,<5)"]
-encryption = ["pymongo[encryption] (>=4.5,<5)"]
-gssapi = ["pymongo[gssapi] (>=4.5,<5)"]
-ocsp = ["pymongo[ocsp] (>=4.5,<5)"]
-snappy = ["pymongo[snappy] (>=4.5,<5)"]
-srv = ["pymongo[srv] (>=4.5,<5)"]
-test = ["aiohttp", "mockupdb", "motor[encryption]", "pytest (>=7)", "tornado (>=5)"]
-zstd = ["pymongo[zstd] (>=4.5,<5)"]
-
-[[package]]
 name = "mslex"
 version = "0.3.0"
 description = "shlex for windows"
@@ -1075,4 +1051,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "c1e332bd3d81f4143e0fc6ff159e6965875e35cd6dcb7e0051997a3eefa83442"
+content-hash = "587d2ba10c439b2c23d396578041b38c0aad5f5f30dca9247632de043e22f6b7"
